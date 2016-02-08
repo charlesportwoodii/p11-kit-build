@@ -5,7 +5,7 @@ This repository allows you to build and package p11-kit
 ## Dependencies
 
 ```
-apt-get install build-essential libgmp-dev libunbound-dev m4
+apt-get install build-essential libgmp-dev libunbound-dev m4 libffi-dev
 ```
 
 # Building and Packaging
