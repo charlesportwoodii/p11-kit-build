@@ -26,25 +26,44 @@ p11kit:
 	cd p11-kit-$(VERSION) && \
 	./configure \
 		--prefix=/usr \
-		--mandir=/usr/share/man/gnutls-$(VERSION) \
-		--infodir=/usr/share/info/gnutls-$(VERSION) \
-	    --docdir=/usr/share/doc/gnutls-$(VERSION) && \
+		--mandir=/usr/share/man/gnutls/p11-kit/$(VERSION) \
+		--infodir=/usr/share/info/gnutls/p11-kit/$(VERSION) \
+	    --docdir=/usr/share/doc/gnutls/p11-kit/$(VERSION) && \
 	make -j$(CORES) && \
 	make install
 
-package:
-	cd /tmp/p11-kit-$(VERSION) && \
-	checkinstall \
-	    -D \
-	    --fstrans \
-	    -pkgrelease "$(RELEASEVER)"-"$(RELEASE)" \
-	    -pkgrelease "$(RELEASEVER)"~"$(RELEASE)" \
-	    -pkgname "p11-kit-23" \
-	    -pkglicense GPLv3 \
-	    -pkggroup GPG \
-	    -maintainer charlesportwoodii@ethreal.net \
-	    -provides "p11-kit-23" \
-	    -requires "" \
-	    -replaces "p11-kit" \
-	    -pakdir /tmp \
-	    -y
+fpm_debian:
+	echo "Packaging p11-kit-23 for Debian"
+
+	cd /tmp/p11-kit-$(VERSION) && make install DESTDIR=/tmp/p11-kit-23-$(VERSION)-install
+
+	fpm -s dir \
+		-t deb \
+		-n p11-kit-23 \
+		-v $(VERSION)-$(RELEASEVER)~$(shell lsb_release --codename | cut -f2) \
+		-C /tmp/p11-kit-23-$(VERSION)-install \
+		-p p11-kit-23_$(VERSION)-$(RELEASEVER)~$(shell lsb_release --codename | cut -f2)_$(shell arch).deb \
+		-m "charlesportwoodii@erianna.com" \
+		--license "GPLv3" \
+		--url https://github.com/charlesportwoodii/p11-kit-23-build \
+		--description "p11-kit-23" \
+		--deb-systemd-restart-after-upgrade
+
+fpm_rpm:
+	echo "Packaging p11-kit-23 for RPM"
+
+	cd /tmp/p11-kit-$(VERSION) && make install DESTDIR=/tmp/p11-kit-23-$(VERSION)-install
+
+	fpm -s dir \
+		-t rpm \
+		-n p11-kit-23 \
+		-v $(VERSION)_$(RELEASEVER) \
+		-C /tmp/p11-kit-23-$(VERSION)-install \
+		-p p11-kit-23_$(VERSION)-$(RELEASEVER)_$(shell arch).rpm \
+		-m "charlesportwoodii@erianna.com" \
+		--license "GPLv3" \
+		--url https://github.com/charlesportwoodii/p11-kit-23-build \
+		--description "p11-kit-23" \
+		--vendor "Charles R. Portwood II" \
+		--rpm-digest sha384 \
+		--rpm-compression gzip
